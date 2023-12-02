@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const pool = require("./db");
+const fs = require ('fs');
+const https = require('https');
 
 /*
     instantiate library objects to be able to use their api
@@ -19,31 +21,30 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
-function greeting() {
-    console.log("server has started on port ", port);
-}
-
-
-function initialize(callback) {
-    console.log("Beginning initialization");
-    callback();
-}
-
-
-function greeting() {
-    console.log("server has started on port ", port);
-}
-
-
-function initialize(callback) {
-    console.log("Beginning initialization");
-    callback();
-}
-
 const port = process.env.PORT || 5000;
+const options = {
+	key:fs.readFileSync('/etc/letsencrypt/live/partionapp.com/privkey.pem'),
+	cert:fs.readFileSync('/etc/letsencrypt/live/partionapp.com/fullchain.pem'),
+};
+
+const server = https.createServer(options,app);
+
+server.listen(port, () => {
+	console.log(`Server running on https://partionapp.com:${port}`);
+});
+
+function greeting() {
+    console.log("server has started on port ", port);
+}
+
+
+function initialize(callback) {
+    console.log("Beginning initialization");
+    callback();
+}
+
 // start server with port and callback welcome function(s)
-app.listen(port,initialize(greeting));
+//app.listen(port,initialize(greeting));
 
 app.post("/api/post/message", async(req,res) => {
     try {
